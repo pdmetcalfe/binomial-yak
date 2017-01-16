@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <queue>
 #include <complex>
 #include <exception>
 #include <vector>
@@ -9,26 +10,27 @@
 
 namespace {
   inline int nextGoodSize(int size) {
-    int best=2 * size;
-    for (int f1=1;;f1*=7) {
-      for (int f2=f1;;f2*=5) {
-	for (int f3=f2;;f3*=3) {
-	  for (int f4=f3;;f4*=2) {
-	    if (f4 >= size) {
-	      if (f4 < best) {
-		best = f4;
-	      }
-	      break;
-	    }
-	  }
-	  if (f3 > size) break;
-	}
-	if (f2 > size) break;
+    std::priority_queue<int, std::vector<int>, std::greater<int> > hamming;
+    hamming.push(1);
+    while (!hamming.empty()) {
+      int current = hamming.top();
+      if (current > size) return current;
+      // take off the head
+      hamming.pop();
+      
+      // take off duplicates
+      while ((!hamming.empty()) && (current == hamming.top())) {
+	hamming.pop();
       }
-      if (f1 > size) break;
+      
+      // and now push on the next multiples
+      hamming.push(2 * current);
+      hamming.push(3 * current);
+      hamming.push(5 * current);
+      hamming.push(7 * current);
     }
-    
-    return best;
+
+    return size;
   }
 }
 
